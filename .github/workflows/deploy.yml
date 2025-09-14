@@ -12,6 +12,9 @@ jobs:
     steps:
       - name: Verificar Commit
         uses: actions/checkout@v3
+
+      - name: Remover pasta dist
+        run: rm -rf ./frontend/dist
         
       - name: Puxar Atualizações
         run: |
