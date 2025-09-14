@@ -6,41 +6,39 @@ on:
       - main
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Verificar Commit
+      - name: Checkout do código
         uses: actions/checkout@v3
 
-      - name: Remover pasta dist
-        run: rm -rf ./frontend/dist
-        
-      - name: Puxar Atualizações
-        run: |
-          git fetch origin main
-          git checkout main
-          git pull origin main
-          
-      - name: Configurar Node.Js
+      - name: Configurar Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 22.19.0
 
-      - name: Instalar Dependências
+      - name: Instalar dependências do Frontend
         working-directory: ./frontend
         run: npm install
 
-      - name: Build Front-End
+      - name: Build do Frontend
         working-directory: ./frontend
         run: npm run build
 
-      - name: Remover Front-End Antigo
-        run: |
-          rm -f ./authapi/public/index.html
-          rm -rf ./authapi/public/assets
+      - name: Iniciar agente SSH
+        uses: webfactory/ssh-agent@v0.8.1
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_KEY }}
 
-      - name: Copiar Build Para back/public
+      - name: Limpar arquivos antigos no servidor
         run: |
-          cp ./frontend/dist/index.html ./authapi/public/
-          cp -r ./frontend/dist/assets ./authapi/public/
+          ssh -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} << 'EOF'
+            rm -f /var/www/authapiphp/authapi/public/index.html
+            rm -rf /var/www/authapiphp/authapi/public/assets
+          EOF
+
+      - name: Enviar novos arquivos para o servidor
+        run: |
+          scp -r ./frontend/dist/index.html ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/var/www/authapiphp/authapi/public/
+          scp -r ./frontend/dist/assets ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/var/www/authapiphp/authapi/public/
