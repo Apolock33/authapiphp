@@ -25,11 +25,11 @@ jobs:
           node-version: 22.19.0
 
       - name: Instalar Dependências
-        working-directory: ./front
+        working-directory: ./frontend
         run: npm install
 
       - name: Build Front-End
-        working-directory: ./front
+        working-directory: ./frontend
         run: npm run build
 
       - name: Remover Front-End Antigo
@@ -39,5 +39,5 @@ jobs:
 
       - name: Copiar Build Para back/public
         run: |
-          cp ./front/dist/index.html ./back/public/
-          cp -r ./front/dist/assets ./back/public/
+          cp ./frontend/dist/index.html ./authapi/public/
+          cp -r ./frontend/dist/assets ./authapi/public/
