@@ -34,8 +34,8 @@ jobs:
 
       - name: Remover Front-End Antigo
         run: |
-          rm -f ./back/public/index.html
-          rm -rf ./back/public/assets
+          rm -f ./authapi/public/index.html
+          rm -rf ./authapi/public/assets
 
       - name: Copiar Build Para back/public
         run: |
