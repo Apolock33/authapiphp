@@ -1,0 +1,43 @@
+name: Build e Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Verificar Commit
+        uses: actions/checkout@v3
+        
+      - name: Puxar Atualizações
+        run: |
+          git fetch origin main
+          git checkout main
+          git pull origin main
+          
+      - name: Configurar Node.Js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22.19.0
+
+      - name: Instalar Dependências
+        working-directory: ./front
+        run: npm install
+
+      - name: Build Front-End
+        working-directory: ./front
+        run: npm run build
+
+      - name: Remover Front-End Antigo
+        run: |
+          rm -f ./back/public/index.html
+          rm -rf ./back/public/assets
+
+      - name: Copiar Build Para back/public
+        run: |
+          cp ./front/dist/index.html ./back/public/
+          cp -r ./front/dist/assets ./back/public/
